@@ -7,10 +7,7 @@
 }:
 stdenv.mkDerivation {
   name = "zoem";
-  src = lib.cleanSource ./.;
+  src = lib.cleanSource ./zoem;
   buildInputs = [ cimfomfa ];
   nativeBuildInputs = [ autoreconfHook ];
-  preBuild = ''
-    shed/setversion 23
-  '';
 }
