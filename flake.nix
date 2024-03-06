@@ -5,8 +5,6 @@
 
   outputs = { self, nixpkgs }:
     let
-      overlay = import ./overlay.nix;
-
       forAllSystems = function:
         nixpkgs.lib.genAttrs [
           "x86_64-linux"
@@ -17,26 +15,25 @@
           (system:
             function (import nixpkgs {
               inherit system;
-              overlays = [ overlay ];
             }));
 
     in
     {
-      overlays.default = overlay;
-
       # Dynamically generate a shell for each system
       # containing all the packages in the overlay
       packages = forAllSystems
-        (pkgs: {
-          default =
-            let
-              overlayPackageNames = builtins.attrNames (overlay { } { });
-              overlayPackages = map (name: pkgs.${name}) overlayPackageNames;
-            in
-            pkgs.buildEnv {
-              name = "esoteric shell";
-              paths = overlayPackages;
-            };
-        });
+        (pkgs:
+          let
+            packageMap = import ./packages.nix { nixpkgs = pkgs; };
+            packageNames = builtins.attrNames packageMap;
+            packagePaths = map (name: packageMap.${name}) packageNames;
+          in
+          packageMap // {
+            default =
+              pkgs.buildEnv {
+                name = "esoteric_nix_all";
+                paths = packagePaths;
+              };
+          });
     };
 }
