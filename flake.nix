@@ -13,7 +13,7 @@
     }
     //
 
-    # Dynamically generate devshell for each system
+    # Dynamically generate a shell for each system
     # containing all the packages in the overlay
     flake-utils.lib.eachDefaultSystem (system:
       let
@@ -22,12 +22,13 @@
           overlays = [ overlay ];
         };
         overlayPackageNames = builtins.attrNames (overlay { } { });
-        devshellPackages = map (name: pkgs.${name}) overlayPackageNames;
+        overlayPackages = map (name: pkgs.${name}) overlayPackageNames;
 
       in
       {
-        devShells.default = pkgs.mkShell {
-          buildInputs = devshellPackages;
+        packages.default = pkgs.buildEnv {
+          name = "esoteric shell";
+          paths = overlayPackages;
         };
       }
     );
