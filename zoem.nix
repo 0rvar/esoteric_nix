@@ -1,13 +1,11 @@
-# zoem.nix
-{
-  stdenv,
-  autoreconfHook,
-  lib,
-  cimfomfa
+{ stdenv
+, autoreconfHook
+, lib
+, pkgs ? import <nixpkgs> { }
 }:
 stdenv.mkDerivation {
   name = "zoem";
   src = lib.cleanSource ./zoem;
-  buildInputs = [ cimfomfa ];
+  buildInputs = [ (pkgs.callPackage ./zoem/vendor/cimfomfa.nix { }) ];
   nativeBuildInputs = [ autoreconfHook ];
 }

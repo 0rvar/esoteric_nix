@@ -1,5 +1,5 @@
-{ nixpkgs }: {
-  zoem = nixpkgs.callPackage ./zoem.nix {
-    cimfomfa = nixpkgs.callPackage ./zoem/vendor/cimfomfa/cimfomfa.nix { };
+{ pkgs }: {
+  zoem = pkgs.callPackage ./zoem.nix {
+    inherit pkgs;
   };
 }

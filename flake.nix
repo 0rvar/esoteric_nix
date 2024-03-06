@@ -24,7 +24,7 @@
       packages = forAllSystems
         (pkgs:
           let
-            packageMap = import ./packages.nix { nixpkgs = pkgs; };
+            packageMap = import ./packages.nix { inherit pkgs; };
             packageNames = builtins.attrNames packageMap;
             packagePaths = map (name: packageMap.${name}) packageNames;
           in
