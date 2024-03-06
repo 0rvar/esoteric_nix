@@ -10,7 +10,6 @@
 **/*.zmr
 **/*.gz
 **/*.html
-config*
 aclocal.m4
 src/zoem
 doc/zum.prm
@@ -21,3 +20,4 @@ autofoo/compile
 **/Makefile.in
 VERSION
 mylist
+/result

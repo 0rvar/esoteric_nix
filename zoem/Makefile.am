@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 ## $Id: Makefile.am,v 1.20 2004/06/24 11:43:11 flux Exp $
 
-SUBDIRS = . src doc examples shed
+SUBDIRS = . src examples shed
 
 VERSION = @VERSION@
 
