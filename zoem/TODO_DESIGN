@@ -1,0 +1,94 @@
+
+An attempt at distilling some mainlines from TODO.
+None of this points to a yawning abyss of missing functionality.
+
+The last meandering discussion of stacks tied to sinks
+meshed with writeto changing output streams is of some interest.
+
+
+-  (ever) better separate character munging code.
+   clearer grip on device whitespace munging and special rules
+   for the extreme corner cases.
+   (which corner cases? maybe described in TODO).
+
+-  implement append modes \writeto{a}{name}, \write{a}{name}{filter}{stuff}.
+   For writeto also make commandline switch that makes \writeto{name}
+   append by default.
+
+-  better structuring and sectioning of source code.  parse/segment/digest
+   include most of each other, due e.g. to seg_check_ok and yamFormatted1.
+
+-  Env well-formedness should pbb best be checked at output time,
+   not during processing time. It should be possible (?) to make
+   contrived examples failing during processing time, producing
+   correct output nevertheless.
+   Well, they would be contrived, so I don't agree with this, but will
+   leave the note.
+
+-  better (inode) hashing of file pointers (right now by name, so foo
+   and ./foo are different).
+
+-  remove 9-arg limitation.
+   Or not. 9 arguments should be enough for anyone. Varargs can already
+   be used, and there is some parse support. This could be extended.
+
+-  the implementation of f#2 f#3 and fv#2 is very straightforward
+   from a numerical point of view.
+
+-  fix long routines.
+
+-  better special/level design (why/how?)
+-  reconsider tracing implementation (why?)
+
+
+
+Below seems a discussion prompted by:
+-  in zpresent \writeto{} makes env {presentation} inaccessible.
+
+
+further qualify stacks + dictionaries with associated sink?
+or, perhaps,
+
+\get{itemize}{foo}
+   will search across all stacks irrespective of sink.
+
+dollarstack tied to output.
+default dollarstack: changed by writeto.
+
+aephea:
+   \writeto{-}
+      \begin{presentation}
+   \writeto{1.html}
+      \begin{slide}
+           \get{$presentation}{foo}
+           \write{index.htmL}{device}{.... ??\get{$presentation}{foo}?? ...}
+      \end{slide}
+
+write3
+      yamOutputNew(fname->str))
+      yamKeyDef("__fnwrite__", fname->str)
+      yamOutput(yamtxt, xfout->usr, fltidx)
+         sinkPush(sk, fltidx)
+         sinkPop(sk)
+
+writeto
+   yamOutputClose
+   yamOutputNew
+      if (!xf->usr)
+      xf->usr = sinkNew
+      else
+      filterSetFP
+   sinkPush
+   ## changed sinkPush: does this fix it?
+
+write
+
+-  in zpresent \writeto{} makes env {presentation} inaccessible.
+   1) is there a global dollar stack? (yes, sinkGetDLRdefault)
+   2) why is env presentation not tied to it?
+      a) is there a way to tie it?
+      b) if no, make it.
+         -> way to specify that dictionary should be tied to DLRdefault.
+         -> OR \writeto should act the same as \write
+         -> and optionally make that configurable.
+
