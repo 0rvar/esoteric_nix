@@ -1,5 +1,3 @@
-# git@github.com:alemart/surgescript.git
-
 { stdenv
 , cmake
 , fetchFromGitHub
