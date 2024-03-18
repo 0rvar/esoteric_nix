@@ -12,4 +12,7 @@
   livescript = pkgs.callPackage ./livescript.nix { };
   thue = pkgs.callPackage ./thue.nix { };
   albus = pkgs.callPackage ./albus.nix { };
+  jasmin = pkgs.callPackage ./jasmin.nix {
+    inherit pkgs;
+  };
 }
