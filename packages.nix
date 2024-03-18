@@ -6,4 +6,5 @@
   yorick = pkgs.callPackage ./yorick.nix { };
   brainfuck = pkgs.callPackage ./brainfuck.nix { };
   cfunge = pkgs.callPackage ./cfunge.nix { };
+  golfscript = pkgs.callPackage ./golfscript.nix { };
 }
