@@ -6,4 +6,7 @@
   yorick = pkgs.callPackage ./yorick.nix { };
   brainfuck = pkgs.callPackage ./brainfuck.nix { };
   cfunge = pkgs.callPackage ./cfunge.nix { };
+  jasmin = pkgs.callPackage ./jasmin.nix {
+    inherit pkgs;
+  };
 }
