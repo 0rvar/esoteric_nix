@@ -7,4 +7,5 @@
   brainfuck = pkgs.callPackage ./brainfuck.nix { };
   cfunge = pkgs.callPackage ./cfunge.nix { };
   golfscript = pkgs.callPackage ./golfscript.nix { };
+  goaheui = pkgs.callPackage ./goaheui.nix { };
 }
