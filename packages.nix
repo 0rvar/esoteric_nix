@@ -8,4 +8,5 @@
   cfunge = pkgs.callPackage ./cfunge.nix { };
   golfscript = pkgs.callPackage ./golfscript.nix { };
   goaheui = pkgs.callPackage ./goaheui.nix { };
+  lazyk = pkgs.callPackage ./lazyk.nix { };
 }
