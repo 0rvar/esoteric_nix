@@ -4,7 +4,6 @@
   };
   surgescript = pkgs.callPackage ./surgescript.nix { };
   yorick = pkgs.callPackage ./yorick.nix { };
-  brainfuck = pkgs.callPackage ./brainfuck.nix { };
   cfunge = pkgs.callPackage ./cfunge.nix { };
   golfscript = pkgs.callPackage ./golfscript.nix { };
   goaheui = pkgs.callPackage ./goaheui.nix { };
@@ -13,4 +12,5 @@
   thue = pkgs.callPackage ./thue.nix { };
   albus = pkgs.callPackage ./albus.nix { };
   nickle = pkgs.callPackage ./nickle.nix { };
+  anyfuck = pkgs.callPackage ./anyfuck.nix { };
 }
