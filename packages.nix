@@ -10,4 +10,5 @@
   goaheui = pkgs.callPackage ./goaheui.nix { };
   lazyk = pkgs.callPackage ./lazyk.nix { };
   livescript = pkgs.callPackage ./livescript.nix { };
+  thue = pkgs.callPackage ./thue.nix { };
 }
