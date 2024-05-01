@@ -1,0 +1,19 @@
+This contains the sources for 'nickle', a desk calculator
+language with powerful programming and scripting capabilities.
+
+This program has been tested on Solaris and Linux.  It uses
+only Posix-style system call interfaces, and should easily
+port to most any reasonable platform.
+
+Have fun!
+
+Keith Packard
+keithp@ncd.com
+
+Bart Massey
+bart@cs.pdx.edu
+
+---
+Copyright © 1988-2004 Keith Packard and Bart Massey.
+All Rights Reserved.  See the file COPYING in this directory
+for licensing information.

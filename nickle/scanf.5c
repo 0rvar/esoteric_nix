@@ -1,0 +1,233 @@
+/*
+ * Scanf code.  Extend File namespace with reading code
+ */
+extend namespace File {
+    public int fscanf (file f, string format, *poly args ...)
+	/*
+	 * According to 'format', read from 'f' to 'args'
+	 */
+    {
+	exception bad_conversion();
+	
+	/* Skip whitespace */
+	void whitespace ()
+	{
+	    int c;
+
+	    while (!end (f))
+		if (!Ctype::isspace (c = getc (f))) {
+		    ungetc (c, f);
+		    break;
+		}
+	}
+
+	bool isbinary (int c)
+	{
+	    if ('0' <= c && c <= '1')
+		return true;
+	    if (c == '-')
+		return true;
+	    return false;
+	}
+	
+	bool isoctal (int c)
+	{
+	    if ('0' <= c && c <= '7')
+		return true;
+	    if (c == '-')
+		return true;
+	    return false;
+	}
+	
+	bool isdecimal (int c)
+	{
+	    if ('0' <= c && c <= '9')
+		return true;
+	    if (c == '-')
+		return true;
+	    return false;
+	}
+
+	bool ishex (int c)
+	{
+	    if ('0' <= c && c <= '9')
+		return true;
+	    if ('a' <= c && c <= 'f')
+		return true;
+	    if ('A' <= c && c <= 'F')
+		return true;
+	    if (c == '-')
+		return true;
+	    return false;
+	}
+
+	bool isfloat (int c)
+	{
+	    if ('0' <= c && c <= '9')
+		return true;
+	    if (c == 'e' || c == 'p' || c == 'x')
+		return true;
+	    if (c == '-')
+		return true;
+	    if (c == '.')
+		return true;
+	    if (c == '{' || c == '}')
+		return true;
+	    return false;
+	}
+
+	/* return next integer in input */
+	int integer (bool(int c) test, int base)
+	{
+	    int	    c;
+	    string  s = "";
+
+	    whitespace();
+	    while (!end (f)) {
+		if (!test (c = getc (f))) {
+		    ungetc (c, f);
+		    break;
+		}
+		s = s + String::new(c);
+	    }
+	    if (String::length(s) == 0)
+		raise bad_conversion();
+	    return string_to_integer (s, base);
+	}
+
+	/* return next number in input */
+	real number (bool(int c) test)
+	{
+	    int	    c;
+	    string  s = "";
+
+	    whitespace();
+	    while (!end (f)) {
+		if (!test (c = getc (f))) {
+		    ungetc (c, f);
+		    break;
+		}
+		s = s + String::new(c);
+	    }
+	    if (String::length(s) == 0)
+		raise bad_conversion();
+	    return string_to_real (s);
+	}
+
+	string word ()
+	{
+	    whitespace();
+	    string  s = "";
+	    while (!end (f)) {
+		int c = getc(f);
+		if (!Ctype::isgraph (c)) {
+		    ungetc (c, f);
+		    break;
+		}
+		s = s + String::new(c);
+	    }
+	    if (String::length(s) == 0)
+		raise bad_conversion();
+	    return s;
+	}
+
+	int	i = 0;
+	int	argc = 0;
+	int	c;
+
+	while (i < String::length (format) && !end(f) && !error(f))
+	{
+	    try {
+		switch (format[i]) {
+		case ' ':
+		case '\t':
+		    whitespace ();
+		    break;
+		case '%':
+		    i++;
+		    switch (format[i]) {
+		    case 'b': case 'B':
+			*args[argc] = integer (isbinary, 2);
+			argc++;
+			break;
+		    case 'o': case 'O':
+			*args[argc] = integer (isoctal, 8);
+			argc++;
+			break;
+		    case 'd': case 'D':
+			*args[argc] = integer (isdecimal, 10);
+			argc++;
+			break;
+		    case 'x': case 'X':
+			*args[argc] = integer (ishex, 16);
+			argc++;
+			break;
+		    case 'a': case 'A':
+		    case 'e': case 'E':
+		    case 'f': case 'F':
+		    case 'g': case 'G':
+			*args[argc] = number(isfloat);
+			argc++;
+			break;
+		    case 'c':
+			*args[argc] = getc(f);
+			argc++;
+			break;
+		    case 's':
+			*args[argc] = word();
+			argc++;
+			break;
+		    default:
+			if (end (f))
+			    return argc;
+			c = getc(f);
+			if (c != format[i]) {
+			    ungetc (c, f);
+			    return argc;
+			}
+			break;
+		    }
+		    break;
+		default:
+		    if (end (f))
+			return argc;
+		    c = getc(f);
+		    if (c != format[i]) {
+			ungetc (c, f);
+			return argc;
+		    }
+		    break;
+		}
+		i++;
+	    } catch bad_conversion() {
+	    }
+	}
+	return argc;
+    }
+
+    public int sscanf (string s, string format, *poly args...)
+	/*
+	 * According to 'format', read from 's' to 'args'
+	 */
+    {
+        file sf = string_read(s);
+        int n = fscanf (sf, format, args ...);
+        close(sf);
+        return n;
+    }
+
+    public namespace ScanfGlobals {
+	
+	public int scanf (string format, *poly args...)
+	    /*
+	     * According to 'format', read from stdin to 'args'
+	     */
+	{
+	    return fscanf (stdin, format, args ...);
+	}
+
+    }
+
+    public import ScanfGlobals;
+}
+import File::ScanfGlobals;

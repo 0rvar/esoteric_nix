@@ -1,0 +1,278 @@
+extend namespace String {
+
+    public int rindex(string target, string pattern) 
+	/*
+	 * Return the right-most location of 'pattern'
+	 * in 'target'
+	 */
+    {
+	int pl = length(pattern);
+	for (int i = length(target) - pl; i >= 0; --i) {
+	    bool match_here() {
+		for (int j = 0; j < pl; j++)
+		    if (target[i + j] != pattern[j])
+			return false;
+		return true;
+	    }
+	    if (match_here())
+		return i;
+	}
+	return -1;
+    }
+
+    public string dirname(string path) 
+	/*
+	 * Return the directory portion of 'path'
+	 */
+    {
+	int n = rindex(path, "/");
+	if (n == -1)
+	    return ".";
+	return (substr(path, 0, n));
+    }
+
+    public string[*] split(string s, string sep) 
+	/*
+	 * Split 's' at 'sep' boundaries, returning
+	 * an array of the resulting pieces
+	 */
+    {
+	string[...] ss = {};
+	int i = -1;
+	int j = 0;
+	while(j < length(s)) {
+	    if (index(sep, new(s[j])) >= 0) {
+		ss[dim(ss)] = substr(s, i + 1, j - i - 1);
+		i = j;
+	    }
+	    j++;
+	}
+	ss[dim(ss)] = substr(s, i + 1, j - i - 1);
+	return ss;
+    }
+
+
+    public void shiftn(&(poly[...]) array, int n)
+    /*
+     * Shift a growable array n elements: left is positive
+     */
+    {
+	int f = dim(array);
+	for (int i = 0; i < f - n; i++)
+	    array[i] = array[i + n];
+	if (n < 0)
+	    for (int i = 0; i < -n; i++)
+		make_uninit(&array[i]);
+	if (n > 0)
+	    setdim(array, f - n);
+    }
+
+    public void shift(&(poly[...]) array)
+    /*
+     * Shift a growable array one element to the left
+     */
+    {
+	shiftn(&array, 1);
+    }
+
+    public string chump(string s)
+    /*
+     * Return s with any trailing newlines removed
+     */
+    {
+	int n = length(s);
+	while(n > 0 && s[n - 1] == '\n')
+	    --n;
+	return substr(s, 0, n);
+    }
+
+    public string chomp(string s) 
+	/*
+	 * Trim whitespace from begining and end of 's'
+	 */
+    {
+	int l = length(s);
+	int i = 0;
+	while(i < l && Ctype::isspace(s[i]))
+	    i++;
+	int j = l - 1;
+	while(j >= i && Ctype::isspace(s[j]))
+	    --j;
+	return substr(s, i, j - i + 1);
+    }
+
+    public bool inchars(int c, string s) 
+	/*
+	 * Return whether 'c' is in 's'
+	 */
+    {
+	return index(s, String::new(c)) >= 0;
+    }
+
+    public string[*] wordsplit(string s, string sep) 
+    /*
+     * Split 's' at boundaries consisting of sequences of
+     * 'sep' characters, returning an array of the resulting
+     * pieces
+     */
+    {
+	string[...] ss = {};
+	int i = 0; 
+	while(i < length(s)) {
+	    while (i < length(s) && inchars(s[i], sep))
+		i++;
+	    int j = i;
+	    while (j < length(s) && !inchars(s[j], sep))
+		j++;
+	    if (i == j)
+		break;
+	    ss[dim(ss)] = substr(s, i, j - i);
+	    i = j;
+	}
+	return ss;
+    }
+
+    public typedef struct { 
+	string oq, cq, qq;
+    } quote_context;
+
+    typedef enum {normal, openq, xq} qstate;
+
+    typedef string(string) dequote_t;
+    
+    public dequote_t make_dequote(quote_context q) 
+	/*
+	 * Construct a quote parsing function based on 'q'
+	 */
+    {
+	public string _dequote(string s) {
+	    string result = "";
+	    qstate t = qstate.normal;
+	    int c;
+	    for (int cur = 0; cur < length(s); cur++) {
+		c = s[cur];
+		switch(t) {
+		case qstate.normal:
+		    if (inchars(c, q.oq)) {
+			t = qstate.openq;
+			continue;
+		    }
+		    raise invalid_argument("leading garbage", 0, s);
+		    break;
+		case qstate.openq:
+		    if (inchars(c, q.qq)) {
+			t = qstate.xq;
+			continue;
+		    }
+		    if (inchars(c, q.cq)) {
+			if (cur != length(s) - 1)
+			    raise invalid_argument("trailing garbage", 0, s);
+			t = qstate.normal;
+			continue;
+		    }
+		    break;
+		case qstate.xq:
+		    t = qstate.openq;
+		    break;
+		}
+		result = result + String::new(c);
+	    }
+	    if (t == qstate.normal || t == qstate.xq && inchars(c, q.cq))
+		return result;
+	    raise invalid_argument("unexpected end of string", 0, s);
+	}
+	return _dequote;
+    }
+
+    public dequote_t dequote = make_dequote(
+       (quote_context) { .oq = "\"", .cq = "\"", .qq = "\\"}
+    );
+
+    public typedef (string[*])(string) parse_csv_t;
+
+    public exception bad_csv_parse(string error_msg,
+    	   	                   string[*] partial_parse);
+
+    public parse_csv_t make_parse_csv(int sep, quote_context q)
+	/*
+	 * Construct a CSV file parsing context from 'q'
+	 */
+    {
+        if (length(q.oq) != 1 || length(q.cq) != 1 || length(q.qq) > 1)
+	    raise invalid_argument("make_parse_csv: quote context"
+				   + "has long bits", 0, q);
+	global bool equiv(int c, &string s) {
+	    if (is_uninit(&s))
+		return false;
+	    if (s[0] != c)
+		return false;
+	    return true;
+	}
+	dequote_t dq = make_dequote(q);
+	public string[*] _parse_csv(string s) {
+	    string[...] ss = {};
+	    string curs = "";
+	    void consume() {
+		string t = chomp(curs);
+		if (t != "" && t[0] == q.oq[0])
+		    t = dq(t);
+		ss[dim(ss)] = t;
+		curs = "";
+	    }
+	    qstate t = qstate.normal;
+	    int cur = 0;
+	    while (cur < length(s)) {
+		int c = s[cur];
+		switch(t) {
+		case qstate.normal:
+		    if (c == sep) {
+			consume();
+			cur++;
+			continue;
+		    }
+		    if (equiv(c, &q.oq))
+			t = qstate.openq;
+		    break;
+		case qstate.openq:
+		    if (equiv(c, &q.cq))
+			t = qstate.xq;
+		    break;
+		case qstate.xq:
+		    if (equiv(c, &q.oq)) {
+			t = qstate.openq;
+			break;
+		    }
+		    if (c == sep) {
+			t = qstate.normal;
+			continue;
+		    }
+		    t = qstate.normal;
+		    break;
+		}
+		curs = curs + String::new(c);
+		cur++;
+	    }
+	    if (t == qstate.openq)
+		raise bad_csv_parse("parse_csv: unexpected " +
+				    "end of csv line", ss);
+	    consume();
+	    return ss;
+	}
+	return _parse_csv;
+    }
+
+    public parse_csv_t parse_csv = make_parse_csv( ',',
+       (quote_context) { .oq = "\"", .cq = "\"", .qq = "\""}
+    );
+
+    public string reverse(string s)
+        /*
+         * Reverse the string s
+         */
+    {
+        int ns = length(s);
+        int[ns] t = { [i] = s[ns - i - 1] };
+        return String::new(t);
+    }
+
+}

@@ -1,0 +1,20 @@
+To build and install on Solaris requires a few minor tricks.
+
+0) As with all Nickle installations, make sure you start by
+   building the autoconf stuff.
+     sh autogen.sh
+
+1) You'll want to have GNU make installed somewhere:
+   our Makefiles seem to require it, although they shouldn't.
+     MAKE=gmake; export MAKE
+
+2) You'll want to have GNU readline installed somewhere,
+   and point the configuration at it.
+     ./configure --with-readline=/pkgs/gnu
+   If you don't do that, it will still work (say
+   --without-readline), but will be harder to type at.
+
+This should get it for you.
+
+Note that the Solaris build is tested only infrequently.
+Let us know if you have problems with it.
