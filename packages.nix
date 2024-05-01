@@ -11,4 +11,5 @@
   lazyk = pkgs.callPackage ./lazyk.nix { };
   livescript = pkgs.callPackage ./livescript.nix { };
   thue = pkgs.callPackage ./thue.nix { };
+  albus = pkgs.callPackage ./albus.nix { };
 }
