@@ -2,14 +2,14 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "falsy";
-  version = "0.1.0";
+  version = "0.2.0";
 
   src = fetchCrate {
     inherit pname version;
-    sha256 = "sha256-10jLkKcAbVcq2BprQ5LEpyc/KJCjemMhJAsmFSp1qqc";
+    sha256 = "sha256-aRobKPVYhWAY6kmVKQRLtXVPngBNZg9bh2CyHSFzC/A=";
   };
 
-  cargoSha256 = "sha256-dwK3P0ZkdGdBUcbHknpu9DaCyDq69H/3ISbcoG0GkNE=";
+  cargoSha256 = "sha256-4n0MsoTu9rvwsKMqjmPX8ANwFoU3+VJl6NjRVypDyNg=";
 
   meta = with lib; {
     description = "False interpreter written in Rust";
