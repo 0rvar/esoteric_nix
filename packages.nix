@@ -13,4 +13,5 @@
   albus = pkgs.callPackage ./albus.nix { };
   nickle = pkgs.callPackage ./nickle.nix { };
   anyfuck = pkgs.callPackage ./anyfuck.nix { };
+  falsy = pkgs.callPackage ./falsy.nix { };
 }
